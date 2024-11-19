@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void removeDuplicates(char str[]) {
+    int index = 0;
+    for (int i = 0; i < strlen(str); i++) {
+        int j;
+        for (j = 0; j < i; j++) {
+            if (str[i] == str[j])
+                break;
+        }
+        if (j == i)
+            str[index++] = str[i];
+    }
+    str[index] = '\0';
+}
+void generateCipher(char keyword[], char cipherMap[]) {
+    char used[26] = {0};
+    int index = 0;
+    removeDuplicates(keyword);
+    for (int i = 0; i < strlen(keyword); i++) {
+        keyword[i] = toupper(keyword[i]);
+    }
+
+    // Add keyword characters to cipher map
+    for (int i = 0; i < strlen(keyword); i++) {
+        if (!used[keyword[i] - 'A']) {
+            cipherMap[index++] = keyword[i];
+            used[keyword[i] - 'A'] = 1;
+        }
+    }
+    for (char ch = 'A'; ch <= 'Z'; ch++) {
+        if (!used[ch - 'A']) {
+            cipherMap[index++] = ch;
+        }
+    }
+    cipherMap[index] = '\0';
+}
+void encryptMessage(char plaintext[], char cipherMap[], char encrypted[]) {
+    for (int i = 0; plaintext[i] != '\0'; i++) {
+        if (isalpha(plaintext[i])) {
+            int isLower = islower(plaintext[i]);
+            char ch = toupper(plaintext[i]);
+            encrypted[i] = cipherMap[ch - 'A'];
+            if (isLower) {
+                encrypted[i] = tolower(encrypted[i]);
+            }
+        } else {
+            encrypted[i] = plaintext[i]; 
+        }
+    }
+    encrypted[strlen(plaintext)] = '\0';
+}
+void decryptMessage(char ciphertext[], char cipherMap[], char decrypted[]) {
+    char reverseMap[26];
+    for (int i = 0; i < 26; i++) {
+        reverseMap[cipherMap[i] - 'A'] = 'A' + i;
+    }
+
+    for (int i = 0; ciphertext[i] != '\0'; i++) {
+        if (isalpha(ciphertext[i])) {
+            int isLower = islower(ciphertext[i]);
+            char ch = toupper(ciphertext[i]);
+            decrypted[i] = reverseMap[ch - 'A'];
+            if (isLower) {
+                decrypted[i] = tolower(decrypted[i]);
+            }
+        } else {
+            decrypted[i] = ciphertext[i]; 
+        }
+    }
+    decrypted[strlen(ciphertext)] = '\0';
+}
+
+int main() {
+    char keyword[] = "CIPHER";
+    char cipherMap[27]; 
+    char plaintext[100], encrypted[100], decrypted[100];
+
+    printf("Enter a message to encrypt: ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+    plaintext[strcspn(plaintext, "\n")] = '\0'; 
+
+    generateCipher(keyword, cipherMap);
+
+    printf("Cipher alphabet: %s\n", cipherMap);
+
+    encryptMessage(plaintext, cipherMap, encrypted);
+    printf("Encrypted message: %s\n", encrypted);
+
+    decryptMessage(encrypted, cipherMap, decrypted);
+    printf("Decrypted message: %s\n", decrypted);
+
+    return 0;
+}
