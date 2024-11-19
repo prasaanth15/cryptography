@@ -1,0 +1,48 @@
+#include <stdio.h>
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++) {
+        if ((a * x) % m == 1)
+            return x;
+    }
+    return -1; 
+}
+
+
+void decryptAffine(char ciphertext[], int a, int b) {
+    int a_inv = modInverse(a, 26);
+    if (a_inv == -1) {
+        printf("No modular inverse for a = %d\n", a);
+        return;
+    }
+    for (int i = 0; ciphertext[i] != '\0'; i++) {
+        if (ciphertext[i] >= 'A' && ciphertext[i] <= 'Z') {
+            int C = ciphertext[i] - 'A';
+            int P = (a_inv * (C - b + 26)) % 26; 
+            printf("%c", P + 'A');
+        } else {
+            printf("%c", ciphertext[i]); 
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    char ciphertext[] = "B...U"; 
+    int P1 = 4, C1 = 1;
+    int P2 = 19, C2 = 20;
+
+    int a, b;
+    for (a = 1; a < 26; a++) {
+        if (modInverse(a, 26) != -1) { 
+            b = (C1 - a * P1 + 26) % 26;
+            if ((C2 - a * P2) % 26 == b) {
+                printf("Keys found: a = %d, b = %d\n", a, b);
+                break;
+            }
+        }
+    }
+
+    decryptAffine(ciphertext, a, b);
+    return 0;
+}
